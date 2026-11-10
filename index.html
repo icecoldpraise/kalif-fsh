@@ -73,7 +73,7 @@ const api=async(p,body)=>{try{const r=await fetch(p,{method:'POST',headers:{'Con
 const adm=(action,x)=>api('/api/admin',{...ld('cred',{},sessionStorage),action,...x});
 const saveP=async()=>{const r=await adm('save',{file:'products',data:ST.products});toast(r.error||'Saved. It goes live on the site in about a minute.')};
 async function loadPublic(){try{const[p,r]=await Promise.all([fetch('data/products.json',{cache:'no-store'}).then(x=>x.json()),fetch('data/reviews.json',{cache:'no-store'}).then(x=>x.json())]);ST.products=p;ST.reviews=r}catch(e){}}
-async function load(){const j=await adm('pending',{});if(j.error&&admin){admin=false;sv('cred',null,sessionStorage)}AD.reviews=j.pending||[]}
+async function load(){const j=await adm('pending',{});if(j.error){if(/password/i.test(j.error)){admin=false;sv('cred',null,sessionStorage)}else toast(j.error)}AD.reviews=j.pending||[]}
 (async()=>{await loadPublic();if(admin)await load();render();upd()})();
 const toB64=b=>new Promise(ok=>{const r=new FileReader();r.onload=()=>ok(r.result.split(',')[1]);r.readAsDataURL(b)});
 const shrink=f=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>{const s=Math.min(1,900/i.width),c=document.createElement('canvas');c.width=i.width*s;c.height=i.height*s;c.getContext('2d').drawImage(i,0,0,c.width,c.height);c.toBlob(b=>b?ok(b):no(),'image/jpeg',.85)};i.onerror=no;i.src=URL.createObjectURL(f)});
